@@ -2,15 +2,14 @@ from customtkinter import *
 from tkinter import messagebox, TclError
 import time
 import os
-from src.pyufodb import Relative_DB
-from src.otherFunc import githubLink, AuthorLink
-from src.dbEditor import DBEditor
-from .ai import create_ai_frame
+from .dbBuilder.pyufodb import Relative_DB
+from .dbBuilder.otherFunc import githubLink, AuthorLink,gitlink
+from .dbBuilder.dbEditor import DBEditor
+from .aiBridge import create_ai_frame, AI
 import shutil
 from tkinter import filedialog
 
-
-class DatabaseApp(CTkToplevel):
+class DatabaseApp(CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Database Interface")
@@ -53,17 +52,17 @@ class DatabaseApp(CTkToplevel):
         self.row_count_label.pack(padx=5, pady=(0, 10))
 
         CTkLabel(self.create_db_frame, text="Количество столбцов:").pack(padx=5, pady=(5, 0))
-        self.column_scale = CTkSlider(self.create_db_frame, from_=1, to=20, number_of_steps=19,
+        self.column_scale = CTkSlider(self.create_db_frame, from_=3, to=20, number_of_steps=19,
                                     command=self.update_column_count)
         self.column_scale.set(1)  
         self.column_scale.pack(padx=5, pady=5)
 
-        self.column_count_label = CTkLabel(self.create_db_frame, text="1")
+        self.column_count_label = CTkLabel(self.create_db_frame, text="3")
         self.column_count_label.pack(padx=5, pady=(0, 10))
 
         self.create_button = CTkButton(self.create_db_frame,text="create",command=lambda: self.create_new_db())
         self.create_button.pack()
-        
+
     def update_row_count(self, value):
         self.row_count_label.configure(text=str(int(float(value))))
 
@@ -99,12 +98,11 @@ class DatabaseApp(CTkToplevel):
             self.db.create_table("sightings", column_names)
             self.db.save_to_file(self.db_file)
             messagebox.showinfo("База данных", "Новая база данных создана успешно.")
-            self.clear_window()
-            self.load_frame()
+            self.refresh_file_list()
 
     def generate_column_names(self, count):
         """Генерация имен столбцов от 'a' до 'zzz'."""
-        if count < 1 or count > 78:  # Максимум 78 (a - z, aa - zz, aaa - zzz)
+        if count < 3 or count > 78:
             return []
         
         names = []
@@ -139,18 +137,6 @@ class DatabaseApp(CTkToplevel):
         self.load_im()
         self.load_file_manager()
 
-    def AI(self):
-        ai_window = CTkToplevel(self)  
-        ai_window.title("ИИ")
-        ai_window.geometry("600x500")
-        ai_window.transient(self) 
-        ai_window.lift() 
-
-
-        ai_frame = create_ai_frame(ai_window)
-        ai_frame.pack(fill=BOTH, expand=True)
-
-
     def load_im(self):
         self.create_btn = CTkButton(self.interface_menu_frame, text="Create new Table (.ufo)", width=160, height=40,
                   command=lambda: self.create_new_database())
@@ -164,7 +150,8 @@ class DatabaseApp(CTkToplevel):
         self.bbar.pack(side=BOTTOM)
         CTkButton(self.bbar, width=100, text="Authors", command=githubLink).pack(fill=X, expand=True, side=LEFT, padx=(9, 0))
         CTkButton(self.bbar, width=100, text="GitHub", command=AuthorLink).pack(fill=X, expand=True, side=LEFT, padx=5)
-        CTkButton(self.bbar, width=100, text="AI", command=self.AI).pack(fill=X, expand=True, side=LEFT, padx=(0, 9))
+        CTkButton(self.bbar, width=100, text="V2.1.0", command=gitlink).pack(fill=X, expand=True, side=LEFT, padx=(0, 9))
+        #CTkButton(self.bbar, width=100, text="AI", command=lambda: AI()).pack(fill=X, expand=True, side=LEFT, padx=(0, 9))
 
         self.animate_gradient_button(self.create_btn)
 
@@ -237,8 +224,3 @@ class DatabaseApp(CTkToplevel):
     
     def open_db_editor(self, db_file):
         DBEditor(self, db_file)
-
-if __name__ == "__main__":
-    root = CTk()
-    app = DatabaseApp(root)
-    app.mainloop()

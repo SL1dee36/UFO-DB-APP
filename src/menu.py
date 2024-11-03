@@ -3,7 +3,7 @@ import customtkinter as ctk
 from PIL import Image
 from .account import UserProfileApp
 from .ui import DatabaseApp 
-from .otherFunc import openPrivacyPolicy, openTermsofUse
+from .dbBuilder.otherFunc import openPrivacyPolicy, openTermsofUse
 
 class StartWindow(ctk.CTk):
     def __init__(self, *args, **kwargs):
@@ -25,8 +25,8 @@ class StartWindow(ctk.CTk):
         frame.pack(pady=(50, 20))  
 
         try:
-            image = ctk.CTkImage(light_image=Image.open("ufo.jpg"),
-                                 dark_image=Image.open("ufo.jpg"),  
+            image = ctk.CTkImage(light_image=Image.open("img/ufo.jpg"),
+                                 dark_image=Image.open("img/ufo.jpg"),  
                                  size=(200, 200))
         except Exception as e:
             print(f"Error loading image: {e}")
